@@ -77,6 +77,12 @@ def run_llm(model: str, prompt: str) -> str:
     return ''.join(char.decode('utf8') for char in iter(lambda: process.stdout.read(1), b''))
 
 
+def create_person_llm(person: Person):
+    with open(_project_dir() / 'template.mk') as file:
+        template = file.read()
+    template.format(personality=person.personality)
+
+
 def _project_dir() -> Path:
     return Path(__file__).parent
 
