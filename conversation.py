@@ -111,6 +111,16 @@ def main():
         print(f'creating {person.name} ...')
         create_person_llm(person)
         print('done!')
+    print()
+    conversation = 'This is a conversation:\n'
+    print('Conversation:')
+    while True:
+        for person in persons:
+            conversation = f'{conversation}\n{person.name}: '
+            print(f'{person.name}: ', end='', flush=True)
+            answer = run_llm(model=person.filename, prompt=conversation)
+            print(answer.rstrip())
+            conversation += answer
 
 
 if __name__ == '__main__':
