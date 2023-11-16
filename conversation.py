@@ -29,6 +29,10 @@ class Person:
     def personality(self) -> str:
         return ' '.join(map(str.strip, self._personality))
 
+    @property
+    def filename(self) -> str:
+        return self.name.lower().replace(' ', '')
+
     def add_personality(self, personality: str):
         self._personality.append(personality)
 
@@ -78,22 +82,36 @@ def run_llm(model: str, prompt: str) -> str:
 
 
 def create_person_llm(person: Person):
-    with open(_project_dir() / 'template.mk') as file:
+    with open(_project_dir() / 'template.mk', mode='r') as file:
         template = file.read()
     template.format(personality=person.personality)
+    filepath = (_models_dir() / person.filename).with_suffix('.mk')
+    with open(filepath, mode='w', encoding='utf8') as file:
+        file.write(template)
+    process = subprocess.Popen(['ollama', 'create', person.filename, '-f', str(filepath.absolute())], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    process.wait()
+
+
+# ollama create mario -f ./Modelfile
 
 
 def _project_dir() -> Path:
     return Path(__file__).parent
 
 
+def _models_dir() -> Path:
+    directory = _project_dir() / 'models'
+    directory.mkdir(parents=True, exist_ok=True)
+    return directory
+
+
 def main():
     persons = get_persons_in_conversation()
     for person in persons:
-        print(f'## {person.name}')
-        print(person.personality)
+        print(f'creating {person.name} ...')
+        create_person_llm(person)
+        print('done!')
 
 
 if __name__ == '__main__':
-    r = run_llm('llama2', 'In one small sentence: What is a bird?')
-    print(r)
+    main()
