@@ -67,14 +67,8 @@ def collect_persons():
 
 def get_persons_in_conversation() -> Set[Person]:
     persons = collect_persons()
-    persons_in_conversation = set()
-    for name in sys.argv[1:]:
-        name = name.lower()
-        print(name)
-        for person in persons:
-            if person.name.lower() == name:
-                persons_in_conversation.add(person)
-    return persons_in_conversation
+    filter_names_lower = list(map(str.lower, sys.argv[1:]))
+    return set(person for person in persons if person.name.lower() in filter_names_lower)
 
 
 def _project_dir() -> Path:
