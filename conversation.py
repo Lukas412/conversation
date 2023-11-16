@@ -1,4 +1,5 @@
 import string
+import subprocess
 import sys
 from pathlib import Path
 from typing import Set, List
@@ -71,6 +72,11 @@ def get_persons_in_conversation() -> Set[Person]:
     return set(person for person in persons if person.name.lower() in filter_names_lower)
 
 
+def run_llm(model: str, prompt: str) -> str:
+    process = subprocess.Popen(['ollama', 'run', model, prompt], stdout=subprocess.PIPE)
+    return ''.join(char.decode('utf8') for char in iter(lambda: process.stdout.read(1), b''))
+
+
 def _project_dir() -> Path:
     return Path(__file__).parent
 
@@ -83,4 +89,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    r = run_llm('llama2', 'In one small sentence: What is a bird?')
+    print(r)
