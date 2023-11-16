@@ -73,7 +73,7 @@ def get_persons_in_conversation() -> Set[Person]:
 
 
 def run_llm(model: str, prompt: str) -> str:
-    process = subprocess.Popen(['ollama', 'run', model, prompt], stdout=subprocess.PIPE)
+    process = subprocess.Popen(['ollama', 'run', model, prompt], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     return ''.join(char.decode('utf8') for char in iter(lambda: process.stdout.read(1), b''))
 
 
