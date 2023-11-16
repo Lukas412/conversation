@@ -1,10 +1,24 @@
 import string
+import sys
 from pathlib import Path
+from typing import Set, List
+
+
+def remove_prefix(text: str, prefix: str):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text
+
+
+def remove_suffix(text: str, suffix: str):
+    if text.endswith(suffix):
+        return text[:-len(suffix)]
+    return text
 
 
 class Person:
     name: str
-    _personality: list[str]
+    _personality: List[str]
 
     def __init__(self, name: str):
         self.name = name
@@ -32,15 +46,15 @@ def collect_persons():
             if line.startswith('> **') and line.endswith('**'):
                 if current is not None:
                     continue
-                name = line.removeprefix('> **').removesuffix('**')
+                name = remove_suffix(remove_prefix(line, '> **'), '**')
                 name_allowed = string.ascii_lowercase + '- _'
                 if any((char not in name_allowed for char in name.lower())):
                     continue
-                name = name.replace('_', ' ').replace('-', ' ').replace('  ', ' ').title()
+                name = string.capwords(name.replace('_', ' ').replace('-', ' '))
                 current = Person(name)
                 continue
             if line.startswith('> '):
-                line = line.removeprefix('> ')
+                line = remove_prefix(line, '> ')
                 personality_allowed = string.ascii_lowercase + ' ,._-'
                 if any((char not in personality_allowed for char in line.lower())):
                     continue
@@ -51,12 +65,24 @@ def collect_persons():
     return persons
 
 
+def get_persons_in_conversation() -> Set[Person]:
+    persons = collect_persons()
+    persons_in_conversation = set()
+    for name in sys.argv[1:]:
+        name = name.lower()
+        print(name)
+        for person in persons:
+            if person.name.lower() == name:
+                persons_in_conversation.add(person)
+    return persons_in_conversation
+
+
 def _project_dir() -> Path:
     return Path(__file__).parent
 
 
 def main():
-    persons = collect_persons()
+    persons = get_persons_in_conversation()
     for person in persons:
         print(f'## {person.name}')
         print(person.personality)
