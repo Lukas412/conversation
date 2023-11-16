@@ -84,7 +84,7 @@ def run_llm(model: str, prompt: str) -> str:
 def create_person_llm(person: Person):
     with open(_project_dir() / 'template.mk', mode='r') as file:
         template = file.read()
-    template.format(personality=person.personality)
+    template = template.format(personality=person.personality)
     filepath = (_models_dir() / person.filename).with_suffix('.mk')
     with open(filepath, mode='w', encoding='utf8') as file:
         file.write(template)
